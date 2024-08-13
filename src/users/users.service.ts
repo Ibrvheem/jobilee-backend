@@ -18,4 +18,7 @@ export class UsersService {
     const user = await this.databaseService.user.create({ data: payload });
     return user;
   }
+  async getUsers() {
+    return await this.databaseService.user.findMany({});
+  }
 }
