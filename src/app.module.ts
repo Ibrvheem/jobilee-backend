@@ -4,9 +4,17 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, UsersModule],
+  imports: [
+    DatabaseModule,
+    AuthModule,
+    UsersModule,
+    ConfigModule.forRoot({
+      isGlobal: true, // Make the config available globally
+    }),
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
