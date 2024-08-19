@@ -9,6 +9,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
+import { SUCCESS } from 'constants/CustomResponses';
 
 @Injectable()
 export class AuthService {
@@ -22,8 +23,16 @@ export class AuthService {
     if (isUser) {
       throw new BadRequestException('User already exists');
     }
-    const hashedPassword = await bcrypt.hash(payload.password, 10);
-    await this.userService.createUser({ ...payload, password: hashedPassword });
+    try {
+      const hashedPassword = await bcrypt.hash(payload.password, 10);
+      await this.userService.createUser({
+        ...payload,
+        password: hashedPassword,
+      });
+      return SUCCESS;
+    } catch (err) {
+      throw new NotFoundException(err);
+    }
   }
   async validateUser(email: string, password: string) {
     const user = await this.userService.findUserByEmail(email);

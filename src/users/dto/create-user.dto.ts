@@ -10,6 +10,10 @@ export class CreateUserDto {
   lastName: string;
 
   @IsString()
+  @IsOptional()
+  profilePicture: string;
+
+  @IsString()
   email: string;
 
   @IsString()

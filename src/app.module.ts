@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from 'guards/jwt.guard';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { JwtGuard } from 'guards/jwt.guard';
     AuthModule,
     UsersModule,
     ConfigModule.forRoot({
-      isGlobal: true, // Make the config available globally
+      isGlobal: true,
     }),
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
