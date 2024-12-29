@@ -2,47 +2,49 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-auth.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './user.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(@InjectModel('User') private readonly userModel: Model<User>) {}
 
   async findUserByEmail(email: string) {
-    const user = await this.databaseService.user.findFirst({
-      where: {
-        email,
-      },
-    });
-    return user;
+    return await this.userModel.findOne({ email }).exec();
   }
   async createUser(payload: CreateUserDto) {
-    const user = await this.databaseService.user.create({ data: payload });
-    return user;
+    const newUser = new this.userModel(payload);
+    return newUser.save();
   }
 
   async updateUser(payload: UpdateUserDto, userId: string) {
-    const user = await this.databaseService.user.update({
-      where: {
-        id: userId,
+    const user = await this.userModel.updateOne(
+      {
+        _id: userId,
       },
-      data: payload,
-    });
+      payload,
+    );
     return user;
   }
+
   async getUsers() {
-    return await this.databaseService.user.findMany({});
+    return await this.userModel.find();
   }
 
-  async getMe(id) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...rest } = await this.databaseService.user.findFirst({
-      where: {
-        id,
-      },
-    });
-    if (!rest) {
+  async getUserByRegNo(reg_no: string) {
+    const user = await this.userModel
+      .findOne({ reg_no: reg_no })
+      .select('-password');
+
+    return user;
+  }
+
+  async getMe(id: string) {
+    const user = await this.userModel.findOne({ _id: id }).select('-password'); // Excluding password
+    if (!user) {
       throw new BadRequestException('User not found');
     }
-    return rest;
+    return user;
   }
 }

@@ -1,21 +1,42 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsDate, IsOptional, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @IsOptional()
-  firstName: string;
+  first_name: string;
+
+  @IsString()
+  last_name: string;
 
   @IsString()
   @IsOptional()
-  lastName: string;
+  profile_picture: string;
+
+  @IsString()
+  reg_no: string;
 
   @IsString()
   @IsOptional()
-  profilePicture: string;
+  phone_no: string;
 
   @IsString()
   email: string;
 
   @IsString()
+  @IsOptional()
   password: string;
+
+  @IsString()
+  @IsOptional()
+  otp: string;
+
+  @IsString()
+  status: string;
+
+  @IsDate()
+  @IsOptional()
+  created_at: Date;
+
+  @IsDate()
+  @IsOptional()
+  updated_at: Date;
 }
