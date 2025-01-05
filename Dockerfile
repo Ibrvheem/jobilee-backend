@@ -1,24 +1,21 @@
-# Base image
-FROM node:18
-
-# Create app directory
-WORKDIR /usr/src/app
-
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
+FROM node:14 AS builder
+WORKDIR /app
 COPY package*.json ./
-
-# Install app dependencies
+COPY prisma ./prisma/
+COPY protos ./protos/
+COPY tsconfig.build.json ./
+COPY tsconfig.json ./
 RUN npm install
-
-# Bundle app source
 COPY . .
-
-
-# Creates a "dist" folder with the production build
 RUN npm run build
 
-# Expose the port on which the app will run
+FROM node:14-alpine
+COPY --from=builder /app/node_modules ./node_modules/
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/dist ./dist/
+COPY --from=builder /app/protos ./protos/
+COPY --from=builder /app/tsconfig.build.json ./
+COPY --from=builder /app/tsconfig.json ./
+COPY --from=builder /app/prisma ./prisma/
 EXPOSE 9308
-
-# Start the server using the production build
 CMD ["npm", "run", "start:prod"]
