@@ -1,38 +1,38 @@
-# Use the official Node.js 18 image as the base image
-FROM node:18-alpine as base
-
-# Set the working directory in the container
-WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json for dependency installation
-COPY package*.json ./
-
-# Install all dependencies, including devDependencies
-RUN npm install
-
-# Copy the rest of the application code
-COPY . .
-
-# Build the application using npx to avoid the need for a global NestJS CLI installation
-RUN npx nest build
-
-# Start a new stage for running the production build
-FROM node:18-alpine as production
+# Stage 1: Build the application
+FROM node:18-alpine AS builder
 
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Copy only the production dependencies from the base image
-COPY --from=base /usr/src/app/node_modules ./node_modules
+# Copy package.json and package-lock.json
+COPY package*.json ./
 
-# Copy the built application
-COPY --from=base /usr/src/app/dist ./dist
+# Install dependencies
+RUN npm install
 
-# Copy any additional files your application needs (e.g., environment variables)
+# Copy the application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Stage 2: Production image
+FROM node:18-alpine AS production
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Copy the production dependencies from the builder stage
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+# Copy the built application from the builder stage
+COPY --from=builder /usr/src/app/dist ./dist
+
+# Copy any additional files (e.g., package.json for environment variables)
 COPY package.json .
 
-# Expose the port that your NestJS app listens on
-EXPOSE 3000
+# Expose the application port
+EXPOSE 9308
 
-# Specify the command to run the app
+# Start the application
 CMD ["node", "dist/main"]
