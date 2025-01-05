@@ -3,7 +3,6 @@ import { UdusService } from './udus.service';
 import { UdusController } from './udus.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UdusSchema } from './udus.schema';
-import { UsersService } from 'src/users/users.service';
 import { UsersModule } from 'src/users/users.module';
 
 @Module({

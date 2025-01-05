@@ -8,12 +8,12 @@ import {
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { SUCCESS } from 'constants/CustomResponses';
 import { sendOTPDTO, verifyOTPDTO } from './dto/send-otp.dto';
 import { REGSTATUS } from 'src/users/types';
 import { UpdateUserDto } from 'src/users/dto/update-auth.dto';
+import { User } from 'src/users/user.schema';
 
 @Injectable()
 export class AuthService {
@@ -41,8 +41,9 @@ export class AuthService {
       throw new NotFoundException(err);
     }
   }
-  async validateUser(email: string, password: string) {
-    const user = await this.userService.findUserByEmail(email);
+  async validateUser(reg_no: string, password: string) {
+    const user = await this.userService.findUserByRegNo(reg_no.toLowerCase());
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -54,8 +55,7 @@ export class AuthService {
     return user;
   }
   async login(user: User) {
-    const payload = { email: user.email, userId: user.id };
-    console.log(user);
+    const payload = { reg_no: user.reg_no, userId: user.id };
 
     return { access_token: this.jwtService.sign(payload) };
   }
