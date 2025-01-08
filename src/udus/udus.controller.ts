@@ -27,8 +27,9 @@ export class UdusController {
   @Post()
   async create(@Body() { reg_no }: { reg_no: string }) {
     try {
-      const user = await this.userService.findUserByRegNo(reg_no);
-      if (user) {
+      const user = await this.userService.findUserByRegNo(reg_no.toLowerCase());
+
+      if (user && user.status === REGSTATUS.OTP_VERIFIED) {
         throw new BadRequestException('User Already Exist');
       }
       const student = await this.udusService.findOneByRegNo(reg_no);

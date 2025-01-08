@@ -15,7 +15,7 @@ export class UsersService {
   }
 
   async findUserByRegNo(reg_no: string) {
-    return await this.userModel.findOne({ reg_no }).exec();
+    return await this.userModel.findOne({ reg_no }).lean();
   }
   async createUser(payload: CreateUserDto) {
     const newUser = new this.userModel(payload);

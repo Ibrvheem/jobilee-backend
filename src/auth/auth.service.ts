@@ -56,8 +56,9 @@ export class AuthService {
   }
   async login(user: User) {
     const payload = { reg_no: user.reg_no, userId: user.id };
+    const { password, ...rest } = user;
 
-    return { access_token: this.jwtService.sign(payload) };
+    return { access_token: this.jwtService.sign(payload), user: rest };
   }
   async sendOTP(payload: sendOTPDTO) {
     const otp = Math.floor(100000 + Math.random() * 900000);
