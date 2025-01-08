@@ -10,8 +10,6 @@ COPY package*.json ./
 # Install the dependencies
 RUN npm install
 
-# Run Prisma generate with the correct schema path
-RUN npx prisma generate --schema=prisma/schema.prisma
 
 # Copy the rest of the application code
 COPY . .
