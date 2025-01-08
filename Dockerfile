@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of the application's source code
 COPY . . 
 
+# Generate the Prisma client
+RUN npx prisma generate
+
 # Build the application
 RUN npm run build
 
@@ -28,7 +31,7 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm install --only=production
 
-# Copy the built files from the build stage (e.g., dist folder for NestJS)
+# Copy the built files and Prisma client from the build stage
 COPY --from=build /app /app
 
 # Expose the port the app runs on
