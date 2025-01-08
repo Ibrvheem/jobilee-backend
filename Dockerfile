@@ -33,4 +33,4 @@ RUN npm install --only=production
 EXPOSE 9308
 
 # Define the command to run the app
-CMD ["npm", "start"]
+CMD ["npm", "dev"]
