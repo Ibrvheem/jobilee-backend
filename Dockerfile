@@ -28,9 +28,6 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm install --only=production
 
-# Copy the build from the previous stage
-COPY --from=build /app/.next .next
-COPY --from=build /app/public public
 
 # Expose the port the app runs on
 EXPOSE 9308
