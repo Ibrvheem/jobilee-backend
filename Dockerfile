@@ -28,9 +28,8 @@ COPY package*.json ./
 # Install production dependencies
 RUN npm install --only=production
 
-
 # Expose the port the app runs on
 EXPOSE 9308
 
 # Define the command to run the app
-CMD ["npm", "dev"]
+CMD ["npm", "run", "start:prod"]
