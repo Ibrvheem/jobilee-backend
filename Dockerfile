@@ -1,31 +1,43 @@
-# Build Stage
-FROM node:18 AS builder
-WORKDIR /app
+# PRODUCTION DOCKERFILE
+# ---------------------
+# This Dockerfile allows to build a Docker image of the NestJS application
+# and based on a NodeJS 20 image. The multi-stage mechanism allows to build
+# the application in a "builder" stage and then create a lightweight production
+# image containing the required dependencies and the JS build files.
+# 
+# Dockerfile best practices
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/
+# Dockerized NodeJS best practices
+# https://github.com/nodejs/docker-node/blob/master/docs/BestPractices.md
+# https://www.bretfisher.com/node-docker-good-defaults/
+# http://goldbergyoni.com/checklist-best-practice-of-node-js-in-production/
 
-# Copy package files and install all dependencies
+FROM node:20-alpine as builder
+
+ENV NODE_ENV build
+
+USER node
+WORKDIR /home/node
+
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copy necessary files and build
-COPY prisma ./prisma/
-COPY tsconfig*.json ./
-COPY . .
-RUN npm run build
+COPY --chown=node:node . .
+RUN npx prisma generate \
+    && npm run build \
+    && npm prune --omit=dev
 
-# Production Stage
-FROM node:18-alpine AS runtime
-WORKDIR /app
+# ---
 
-# Copy production dependencies
-COPY --from=builder /app/package*.json ./
-RUN npm install --production
+FROM node:20-alpine
 
-# Copy application files
-COPY --from=builder /app/dist ./dist/
-COPY --from=builder /app/prisma ./prisma/
+ENV NODE_ENV production
 
-# Debug: Check file structure
-RUN ls -la ./dist ./prisma
+USER node
+WORKDIR /home/node
 
-EXPOSE 9308
-CMD ["npm", "run", "start:prod"]
+COPY --from=builder --chown=node:node /home/node/package*.json ./
+COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+
+CMD ["node", "dist/server.js"]
