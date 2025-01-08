@@ -26,8 +26,11 @@ export class UdusController {
 
   @Post()
   async create(@Body() { reg_no }: { reg_no: string }) {
-    console.log(reg_no);
     try {
+      const user = await this.userService.findUserByRegNo(reg_no);
+      if (user) {
+        throw new BadRequestException('User Already Exist');
+      }
       const student = await this.udusService.findOneByRegNo(reg_no);
       if (!student) {
         throw new NotFoundException(`Student with ${reg_no} does not exist`);
