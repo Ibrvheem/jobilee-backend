@@ -20,13 +20,16 @@ RUN npm run build
 FROM node:latest
 
 # Set the working directory in the container
-WORKDIR ./
+WORKDIR /app
 
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
 # Install production dependencies
 RUN npm install --only=production
+
+# Copy the built files from the build stage (e.g., dist folder for NestJS)
+COPY --from=build /app /app
 
 # Expose the port the app runs on
 EXPOSE 9308
