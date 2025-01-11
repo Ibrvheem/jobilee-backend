@@ -7,12 +7,11 @@ import { UsersModule } from './users/users.module';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtGuard } from 'guards/jwt.guard';
-import { UploadModule } from './upload/upload.module';
-import { Mongoose } from 'mongoose';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UdusModule } from './udus/udus.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -31,6 +30,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersModule,
     UdusModule,
     TasksModule,
+    OtpModule,
+
     // UploadModule,
   ],
   controllers: [AppController],
