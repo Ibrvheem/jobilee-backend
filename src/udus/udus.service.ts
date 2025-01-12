@@ -33,7 +33,6 @@ export class UdusService {
     if (!student) {
       throw new NotFoundException(`Student with reg no: ${reg_no} not found`);
     }
-    console.log(student, reg_no);
 
     const existingUser = await this.usersService.getUserByRegNo(reg_no);
     if (!existingUser) {
@@ -70,7 +69,7 @@ export class UdusService {
       },
       existingUser.id,
     );
-    return SUCCESS;
+    return student;
   }
 
   findOne(id: number) {

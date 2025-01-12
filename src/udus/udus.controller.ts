@@ -36,6 +36,7 @@ export class UdusController {
       if (!student) {
         throw new NotFoundException(`Student with ${reg_no} does not exist`);
       }
+
       return student;
     } catch (err) {
       throw new BadRequestException(err);
