@@ -23,7 +23,6 @@ export class AuthService {
   ) {}
 
   async register(payload: UpdateUserDto) {
-    console.log(payload);
     const isUser = await this.userService.getUserByRegNo(payload.reg_no);
     if (isUser && isUser.status === REGSTATUS.COMPLETED) {
       throw new BadRequestException('User already exists');

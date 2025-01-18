@@ -13,7 +13,6 @@ export class AuthController {
 
   @Post('/signup')
   create(@Body() payload: UpdateUserDto) {
-    console.log(payload);
     return this.authService.register(payload);
   }
   @UseGuards(AuthGuard('local'))

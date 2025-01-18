@@ -43,7 +43,6 @@ export class TasksService {
       const response = await this.taskModel.find({
         user_id: userId,
       });
-      console.log(response);
       return response;
     } catch (err) {
       console.error(`There was an error creating task: ${err}`);
@@ -55,7 +54,6 @@ export class TasksService {
       const response = await this.taskModel.find({
         user_id: { $ne: userId },
       });
-      console.log(response);
       return response;
     } catch (err) {
       console.error(`There was an error creating task: ${err}`);
