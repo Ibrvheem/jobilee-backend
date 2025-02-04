@@ -11,15 +11,52 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { User } from 'decorators/user.decorator';
+import { UsersService } from 'src/users/users.service';
+import { AcceptOrDeclineTaskDto } from './dto/accept-or-decline-task.dto';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly userService: UsersService,
+  ) {}
 
   @Post()
   create(@User() user, @Body() createTaskDto: CreateTaskDto) {
-    console.log(createTaskDto);
     return this.tasksService.create(user.userId, createTaskDto);
+  }
+
+  @Post('cancel')
+  cancelCancel(
+    @User() user,
+    @Body() acceptOrDeclineTaskDto: AcceptOrDeclineTaskDto,
+  ) {
+    return this.tasksService.cancelTask(
+      user.userId,
+      acceptOrDeclineTaskDto.taskId,
+    );
+  }
+
+  @Post('accept')
+  acceptTask(
+    @User() user,
+    @Body() acceptOrDeclineTaskDto: AcceptOrDeclineTaskDto,
+  ) {
+    return this.tasksService.acceptTask(
+      user.userId,
+      acceptOrDeclineTaskDto.taskId,
+    );
+  }
+
+  @Post('decline')
+  declineTask(
+    @User() user,
+    @Body() acceptOrDeclineTaskDto: AcceptOrDeclineTaskDto,
+  ) {
+    return this.tasksService.declineTask(
+      user.userId,
+      acceptOrDeclineTaskDto.taskId,
+    );
   }
 
   @Get('by-you')
@@ -28,8 +65,10 @@ export class TasksController {
   }
 
   @Get('for-you')
-  forYou(@User() user) {
-    return this.tasksService.forYou(user.userId);
+  async forYou(@User() user) {
+    const tasks = await this.tasksService.forYou(user.userId);
+
+    return tasks;
   }
 
   @Get()
@@ -39,7 +78,7 @@ export class TasksController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.tasksService.findOne(+id);
+    return this.tasksService.findOne(id);
   }
 
   @Patch(':id')

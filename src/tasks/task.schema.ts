@@ -1,8 +1,9 @@
 import mongoose from 'mongoose';
 import { ObjectId } from 'typeorm';
 export enum TaskStatus {
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
   PENDING = 'pending',
-  ACTIVE = 'active',
   COMPLETED = 'completed',
   CANCELED = 'canceled',
 }
@@ -23,6 +24,12 @@ export const TaskSchema = new mongoose.Schema({
     required: true,
     ref: 'User',
   },
+  acceptedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: false,
+    ref: 'User',
+  },
+  declinedBy: { type: [mongoose.Schema.Types.ObjectId], required: false },
   created_at: {
     type: Date,
     default: new Date(),
@@ -39,5 +46,7 @@ export interface Task {
   user_id: string;
   created_at: string;
   updated_at: string;
+  acceptedBy: string;
+  declinedBy: string[];
   status: TaskStatus;
 }

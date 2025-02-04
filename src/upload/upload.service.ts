@@ -28,7 +28,7 @@ export class UploadService {
         url: `https://daily-pilot-bucket.s3.${this.configService.getOrThrow('AWS_REGION')}.amazonaws.com/${filePath}`,
       };
     } catch (err) {
-      console.log('There was an error uploading file to S3:', err);
+      console.error('There was an error uploading file to S3:', err);
     }
   }
 }

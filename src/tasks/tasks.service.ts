@@ -1,16 +1,19 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Task } from './task.schema';
+import { Task, TaskStatus } from './task.schema';
 import { UsersService } from 'src/users/users.service';
 import { SUCCESS } from 'constants/CustomResponses';
 import { convertToKobo } from 'lib/helpers';
+import { NotFound } from '@aws-sdk/client-s3';
+import { response } from 'express';
 
 @Injectable()
 export class TasksService {
@@ -54,9 +57,109 @@ export class TasksService {
       const response = await this.taskModel.find({
         user_id: { $ne: userId },
       });
-      return response;
+
+      const tasks = await Promise.all(
+        response.map(async (res) => {
+          const user = await this.usersService.findUserByID(res.user_id);
+          return {
+            ...res.toObject(),
+            user,
+          };
+        }),
+      );
+
+      return tasks;
     } catch (err) {
-      console.error(`There was an error creating task: ${err}`);
+      console.error(`There was an error fetching tasks: ${err}`);
+      throw err; // Re-throw error for higher-level handling if needed
+    }
+  }
+
+  async acceptTask(userId: string, id: string) {
+    try {
+      // Find the task that is not already accepted and matches the provided ID
+      const task = await this.taskModel.findOne({
+        _id: id,
+        user_id: { $ne: userId },
+        status: { $in: [TaskStatus.PENDING, TaskStatus.DECLINED] },
+      });
+
+      if (!task) {
+        throw new NotFoundException(
+          `Accept Task: Task with id: ${id} not found or has already been accepted.`,
+        );
+      }
+
+      // Update the task to accepted status
+      await this.taskModel.updateOne(
+        { _id: id },
+        { status: TaskStatus.ACCEPTED, acceptedBy: userId },
+      );
+
+      return SUCCESS;
+    } catch (err) {
+      console.error(`Error while accepting task`, err);
+      throw new InternalServerErrorException(
+        'An error occurred while accepting the task.',
+      );
+    }
+  }
+
+  async cancelTask(userId: string, id: string) {
+    try {
+      // Find the task that is not already accepted and matches the provided ID
+      const task = await this.taskModel.findOne({
+        _id: id,
+        user_id: userId,
+        // status: { $ne: TaskStatus.ACCEPTED }, //NOTE TO SELF: DO WE WANT TO ALLOW USERS TO CANCEL REQUEST THAT HAS ALREADY BEEN ACCEPTED AND IS IN PROGRESSS
+      });
+
+      if (!task) {
+        throw new NotFoundException(
+          `Cancel Task: Task with id: ${id} not found or has already been accepted.`,
+        );
+      }
+
+      // Update the task to accepted status
+      await this.taskModel.updateOne(
+        { _id: id },
+        { status: TaskStatus.CANCELED },
+      );
+
+      return SUCCESS;
+    } catch (err) {
+      console.error(`Error while cancelling  task`, err);
+      throw new InternalServerErrorException(
+        'An error occurred while cancelling  the task.',
+      );
+    }
+  }
+
+  async declineTask(userId: string, id: string) {
+    try {
+      const task = await this.taskModel.findOne({
+        user_id: { $ne: userId },
+        status: TaskStatus.ACCEPTED,
+        acceptedBy: userId,
+      });
+      if (!task) {
+        throw new NotFoundException(
+          `Decline Task: Task with id: ${id} not found among your accepted tasks.`,
+        );
+      }
+      await this.taskModel.updateOne(
+        {
+          _id: id,
+        },
+        {
+          status: TaskStatus.DECLINED,
+          declinedBy: [...task.declinedBy, userId],
+        },
+      );
+      return SUCCESS;
+    } catch (err) {
+      console.error(`Error while accepting task`, err);
+      throw err;
     }
   }
 
@@ -64,8 +167,21 @@ export class TasksService {
     return `This action returns all tasks`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: string) {
+    try {
+      const task = await this.taskModel.findById({
+        _id: id,
+      });
+      if (!task) {
+        throw new NotFoundException(`Get One: Task with ${id} not found `);
+      }
+
+      const user = await this.usersService.findUserByID(task.user_id);
+      return { ...task.toObject(), user };
+      return task;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
   }
 
   update(id: number, updateTaskDto: UpdateTaskDto) {
