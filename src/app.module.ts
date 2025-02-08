@@ -12,6 +12,7 @@ import { UdusModule } from './udus/udus.module';
 import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { OtpModule } from './otp/otp.module';
     UdusModule,
     TasksModule,
     OtpModule,
+    SocketModule,
 
     // UploadModule,
   ],

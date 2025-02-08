@@ -5,7 +5,6 @@ import { UpdateUserDto } from './dto/update-auth.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './user.schema';
-import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UsersService {

@@ -27,10 +27,7 @@ export class TasksController {
   }
 
   @Post('cancel')
-  cancelCancel(
-    @User() user,
-    @Body() acceptOrDeclineTaskDto: AcceptOrDeclineTaskDto,
-  ) {
+  cancel(@User() user, @Body() acceptOrDeclineTaskDto: AcceptOrDeclineTaskDto) {
     return this.tasksService.cancelTask(
       user.userId,
       acceptOrDeclineTaskDto.taskId,
