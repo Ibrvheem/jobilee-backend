@@ -28,6 +28,6 @@ export class ChatGateway implements OnModuleInit {
     const message = this.chatService.saveMessage(body);
 
     // Emit the message to all connected clients
-    this.server.emit('receiveMessage', message);
+    this.server.emit('receiveMessage', body);
   }
 }
