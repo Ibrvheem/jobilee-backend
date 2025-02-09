@@ -29,7 +29,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies
-RUN npm install --only=production
+RUN npm install --force --only=production
 
 # Copy the built files and Prisma client from the build stage
 COPY --from=build /app /app
