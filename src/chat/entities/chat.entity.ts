@@ -4,14 +4,14 @@ import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Message extends Document {
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  sender: Types.ObjectId;
+  @Prop({ type: String, ref: 'User', required: true })
+  senderId: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-  receiver: Types.ObjectId;
+  @Prop({ type: String, ref: 'User', required: true })
+  receiverId: string;
 
   @Prop({ required: true })
-  content: string;
+  message: string;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);

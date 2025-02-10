@@ -64,6 +64,7 @@ export class AuthService {
         profile_picture: user.profile_picture,
         phone_no: user.phone_no,
         email: user.email,
+        id: user.id,
       },
     };
   }
