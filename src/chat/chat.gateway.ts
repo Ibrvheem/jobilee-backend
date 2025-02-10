@@ -10,7 +10,12 @@ import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { User } from 'decorators/user.decorator';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*', // Change to your frontend domain in production
+    methods: ['GET', 'POST'],
+  },
+})
 export class ChatGateway implements OnModuleInit {
   @WebSocketServer()
   server: Server;
