@@ -6,10 +6,11 @@ import { SUCCESS } from 'constants/CustomResponses';
 @Injectable()
 export class UploadService {
   private readonly s3Client = new S3Client({
-    region: this.configService.getOrThrow('AWS_REGION'),
+    endpoint: this.configService.getOrThrow('R2_ENDPONT'),
+    region: this.configService.getOrThrow('R2_REGION'),
     credentials: {
-      accessKeyId: this.configService.getOrThrow('AWS_ACCESS_KEY_ID'),
-      secretAccessKey: this.configService.getOrThrow('AWS_SECRET_ACCESS_KEY'),
+      accessKeyId: this.configService.getOrThrow('R2_ACCESS_KEY_ID'),
+      secretAccessKey: this.configService.getOrThrow('R2_SECRET_ACCESS_KEY'),
     },
   });
 
@@ -18,14 +19,14 @@ export class UploadService {
     try {
       await this.s3Client.send(
         new PutObjectCommand({
-          Bucket: 'daily-pilot-bucket',
+          Bucket: 'assistry',
           Key: filePath,
           Body: file,
         }),
       );
       return {
         ...SUCCESS,
-        url: `https://daily-pilot-bucket.s3.${this.configService.getOrThrow('AWS_REGION')}.amazonaws.com/${filePath}`,
+        url: `https://daily-pilot-bucket.s3.${this.configService.getOrThrow('R2_REGION')}.amazonaws.com/${filePath}`,
       };
     } catch (err) {
       console.error('There was an error uploading file to S3:', err);

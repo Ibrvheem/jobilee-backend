@@ -13,6 +13,7 @@ import { TasksModule } from './tasks/tasks.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OtpModule } from './otp/otp.module';
 import { ChatModule } from './chat/chat.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -33,8 +34,7 @@ import { ChatModule } from './chat/chat.module';
     TasksModule,
     OtpModule,
     ChatModule,
-
-    // UploadModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [
