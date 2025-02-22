@@ -15,6 +15,9 @@ export class CreateTaskDto {
   expires: number;
 
   @IsString()
+  location: string;
+
+  @IsString()
   @IsOptional()
   visual_context: string;
 }

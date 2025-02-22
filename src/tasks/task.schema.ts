@@ -13,6 +13,7 @@ export const TaskSchema = new mongoose.Schema({
   description: { type: String },
   incentive: { type: Number, required: true },
   visual_context: { type: String },
+  location: { type: String, required: true },
   expires: { type: Number, require: true },
   status: {
     type: String,
@@ -42,6 +43,7 @@ export interface Task {
   description: string;
   incentive: string;
   visual_context: string;
+  location: string;
   expires: string;
   user_id: string;
   created_at: string;
