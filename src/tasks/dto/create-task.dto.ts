@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
+import { AssetDTO } from 'src/commons/dto/asset.dto';
 
 export class CreateTaskDto {
   @IsString()
@@ -17,7 +18,7 @@ export class CreateTaskDto {
   @IsString()
   location: string;
 
-  @IsString()
+  @IsArray()
   @IsOptional()
-  visual_context: string;
+  assets: AssetDTO;
 }

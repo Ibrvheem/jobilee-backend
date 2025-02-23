@@ -14,12 +14,14 @@ import { SUCCESS } from 'constants/CustomResponses';
 import { convertToKobo } from 'lib/helpers';
 import { NotFound } from '@aws-sdk/client-s3';
 import { response } from 'express';
+import { UploadService } from 'src/upload/upload.service';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel('Tasks') private readonly taskModel: Model<Task>,
     private readonly usersService: UsersService,
+    private readonly uploadService: UploadService,
   ) {}
   async create(id: string, payload: CreateTaskDto) {
     const user = await this.usersService.getMe(id);
@@ -41,14 +43,35 @@ export class TasksService {
     }
   }
 
-  async getYours(userId) {
+  async getYours(userId: string) {
     try {
       const response = await this.taskModel.find({
         user_id: userId,
       });
-      return response;
+      const tasks = await Promise.all(
+        response.map(async (res) => {
+          const assets =
+            res.assets.length > 0
+              ? await Promise.all(
+                  res.assets.map(async (asset) => ({
+                    ...asset.toObject(), // ✅ Converts subdocument to plain object
+                    url: await this.uploadService.getFileUrl(
+                      asset.assetStorageKey,
+                    ),
+                  })),
+                )
+              : [];
+
+          return { ...res.toObject(), assets };
+        }),
+      );
+
+      return tasks;
     } catch (err) {
-      console.error(`There was an error creating task: ${err}`);
+      console.error(`There was an error fetching tasks: ${err}`);
+      throw new InternalServerErrorException(
+        'An error occurred while fetching tasks.',
+      );
     }
   }
 
@@ -63,6 +86,19 @@ export class TasksService {
           const user = await this.usersService.findUserByID(res.user_id);
           return {
             ...res.toObject(),
+            assets:
+              res.assets.length > 0
+                ? await Promise.all(
+                    res.assets.map(async (asset) => {
+                      return {
+                        ...asset.toObject(),
+                        url: await this.uploadService.getFileUrl(
+                          asset.assetStorageKey,
+                        ),
+                      };
+                    }),
+                  )
+                : [],
             user,
           };
         }),

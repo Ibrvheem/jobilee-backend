@@ -1,5 +1,7 @@
-import mongoose from 'mongoose';
-import { ObjectId } from 'typeorm';
+import mongoose, { Schema } from 'mongoose';
+import { Document } from 'mongoose';
+
+import { AssetDTO } from 'src/commons/dto/asset.dto';
 export enum TaskStatus {
   ACCEPTED = 'accepted',
   DECLINED = 'declined',
@@ -7,12 +9,24 @@ export enum TaskStatus {
   COMPLETED = 'completed',
   CANCELED = 'canceled',
 }
+const AssetSchema = new Schema({
+  assetStorageKey: { type: String, required: true },
+  kind: {
+    type: String,
+    required: true,
+  },
+});
+
+export interface Asset extends Document {
+  kind: string;
+  assetStorageKey: string;
+}
 
 export const TaskSchema = new mongoose.Schema({
   task: { type: String, required: true },
   description: { type: String },
   incentive: { type: Number, required: true },
-  visual_context: { type: String },
+  assets: { type: [AssetSchema] },
   location: { type: String, required: true },
   expires: { type: Number, require: true },
   status: {
@@ -50,5 +64,6 @@ export interface Task {
   updated_at: string;
   acceptedBy: string;
   declinedBy: string[];
+  assets?: Asset[];
   status: TaskStatus;
 }
