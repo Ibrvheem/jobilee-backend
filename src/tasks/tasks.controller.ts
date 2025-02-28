@@ -67,6 +67,12 @@ export class TasksController {
 
     return tasks;
   }
+  @Get('/available')
+  async findAvailable(@User() user) {
+    const tasks = await this.tasksService.getAvailableTask(user.userId);
+
+    return tasks;
+  }
 
   @Get()
   findAll() {

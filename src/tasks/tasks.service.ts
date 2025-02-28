@@ -110,6 +110,18 @@ export class TasksService {
       throw err; // Re-throw error for higher-level handling if needed
     }
   }
+  async getAvailableTask(userId: string) {
+    try {
+      const response = await this.taskModel.findOne({
+        user_id: { $ne: userId },
+        status: TaskStatus.PENDING,
+      });
+
+      return response;
+    } catch (err) {
+      console.error('There was an error fetching active tasks', err);
+    }
+  }
 
   async acceptTask(userId: string, id: string) {
     try {
@@ -213,7 +225,20 @@ export class TasksService {
       }
 
       const user = await this.usersService.findUserByID(task.user_id);
-      return { ...task.toObject(), user };
+      const assets =
+        task.assets.length > 0
+          ? await Promise.all(
+              task.assets.map(async (asset) => {
+                return {
+                  ...asset.toObject(),
+                  url: await this.uploadService.getFileUrl(
+                    asset.assetStorageKey,
+                  ),
+                };
+              }),
+            )
+          : [];
+      return { ...task.toObject(), assets, user };
       return task;
     } catch (err) {
       throw new InternalServerErrorException(err);
