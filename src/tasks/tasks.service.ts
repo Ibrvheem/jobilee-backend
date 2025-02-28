@@ -7,7 +7,7 @@ import {
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Task, TaskStatus } from './task.schema';
 import { UsersService } from 'src/users/users.service';
 import { SUCCESS } from 'constants/CustomResponses';
@@ -79,6 +79,7 @@ export class TasksService {
     try {
       const response = await this.taskModel.find({
         user_id: { $ne: userId },
+        status: TaskStatus.PENDING,
       });
 
       const tasks = await Promise.all(
@@ -120,6 +121,81 @@ export class TasksService {
       return response;
     } catch (err) {
       console.error('There was an error fetching active tasks', err);
+    }
+  }
+
+  async getYourTodo(userId: string) {
+    try {
+      const response = await this.taskModel.find({
+        acceptedBy: userId,
+        status: TaskStatus.ACCEPTED,
+      });
+
+      const tasks = await Promise.all(
+        response.map(async (res) => {
+          const user = await this.usersService.findUserByID(res.user_id);
+          return {
+            ...res.toObject(),
+            assets:
+              res.assets.length > 0
+                ? await Promise.all(
+                    res.assets.map(async (asset) => {
+                      return {
+                        ...asset.toObject(),
+                        url: await this.uploadService.getFileUrl(
+                          asset.assetStorageKey,
+                        ),
+                      };
+                    }),
+                  )
+                : [],
+            user,
+          };
+        }),
+      );
+      return tasks;
+    } catch (err) {
+      console.error('There was an error fetching active tasks', err);
+      throw new InternalServerErrorException(
+        'An error occurred while fetching your todo tasks.',
+      );
+    }
+  }
+  async yourTaskAcceptedByOthers(userId: string) {
+    try {
+      const response = await this.taskModel.find({
+        user_id: userId,
+        status: TaskStatus.ACCEPTED,
+      });
+
+      const tasks = await Promise.all(
+        response.map(async (res) => {
+          const user = await this.usersService.findUserByID(res.acceptedBy);
+          return {
+            ...res.toObject(),
+            assets:
+              res.assets.length > 0
+                ? await Promise.all(
+                    res.assets.map(async (asset) => {
+                      return {
+                        ...asset.toObject(),
+                        url: await this.uploadService.getFileUrl(
+                          asset.assetStorageKey,
+                        ),
+                      };
+                    }),
+                  )
+                : [],
+            user,
+          };
+        }),
+      );
+      return tasks;
+    } catch (err) {
+      console.error('There was an error fetching active tasks', err);
+      throw new InternalServerErrorException(
+        'An error occurred while fetching your todo tasks.',
+      );
     }
   }
 

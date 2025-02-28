@@ -13,6 +13,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { User } from 'decorators/user.decorator';
 import { UsersService } from 'src/users/users.service';
 import { AcceptOrDeclineTaskDto } from './dto/accept-or-decline-task.dto';
+import { UserBindingContextImpl } from 'twilio/lib/rest/ipMessaging/v2/service/user/userBinding';
 
 @Controller('tasks')
 export class TasksController {
@@ -64,13 +65,22 @@ export class TasksController {
   @Get('for-you')
   async forYou(@User() user) {
     const tasks = await this.tasksService.forYou(user.userId);
-
     return tasks;
   }
-  @Get('/available')
+  @Get('available')
   async findAvailable(@User() user) {
     const tasks = await this.tasksService.getAvailableTask(user.userId);
 
+    return tasks;
+  }
+  @Get('to-do')
+  async findYourTodo(@User() user) {
+    const tasks = await this.tasksService.getYourTodo(user.userId);
+    return tasks;
+  }
+  @Get('accepted')
+  async yourTaskAcceptedByOthers(@User() user) {
+    const tasks = await this.tasksService.yourTaskAcceptedByOthers(user.userId);
     return tasks;
   }
 
