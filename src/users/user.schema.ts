@@ -7,7 +7,6 @@ export const UserSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String },
   phone_no: { type: String, required: true },
-  reg_no: { type: String, required: true },
   otp: { type: String },
   status: { type: String },
   created_at: { type: Date },
@@ -22,7 +21,6 @@ export interface User {
   email: string;
   password: string;
   phone_no: string;
-  reg_no: string;
   otp: string;
   status: string;
   created_at: string;

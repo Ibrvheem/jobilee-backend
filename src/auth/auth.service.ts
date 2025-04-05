@@ -6,7 +6,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { SUCCESS } from 'constants/CustomResponses';
@@ -23,7 +22,9 @@ export class AuthService {
   ) {}
 
   async register(payload: UpdateUserDto) {
-    const isUser = await this.userService.getUserByRegNo(payload.reg_no);
+    const isUser = await this.userService.findUserByEmail(
+      payload.email.toLowerCase(),
+    );
     if (isUser && isUser.status === REGSTATUS.COMPLETED) {
       throw new BadRequestException('User already exists');
     }
@@ -40,8 +41,8 @@ export class AuthService {
       throw new NotFoundException(err);
     }
   }
-  async validateUser(reg_no: string, password: string) {
-    const user = await this.userService.findUserByRegNo(reg_no.toLowerCase());
+  async validateUser(email: string, password: string) {
+    const user = await this.userService.findUserByEmail(email.toLowerCase());
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -54,7 +55,7 @@ export class AuthService {
     return user;
   }
   async login(user: User) {
-    const payload = { reg_no: user.reg_no, userId: user.id };
+    const payload = { email: user.email, userId: user.id };
 
     return {
       access_token: this.jwtService.sign(payload),

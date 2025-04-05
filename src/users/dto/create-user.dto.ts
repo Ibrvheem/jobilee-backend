@@ -12,9 +12,6 @@ export class CreateUserDto {
   profile_picture: string;
 
   @IsString()
-  reg_no: string;
-
-  @IsString()
   @IsOptional()
   phone_no: string;
 

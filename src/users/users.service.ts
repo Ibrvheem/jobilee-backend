@@ -22,9 +22,6 @@ export class UsersService {
     return await this.userModel.findOne({ email }).exec();
   }
 
-  async findUserByRegNo(reg_no: string) {
-    return await this.userModel.findOne({ reg_no }).exec();
-  }
   async createUser(payload: CreateUserDto) {
     const newUser = new this.userModel(payload);
     return newUser.save();
@@ -42,14 +39,6 @@ export class UsersService {
 
   async getUsers() {
     return await this.userModel.find();
-  }
-
-  async getUserByRegNo(reg_no: string) {
-    const user = await this.userModel
-      .findOne({ reg_no: reg_no })
-      .select('-password');
-
-    return user;
   }
 
   async getMe(id: string) {
